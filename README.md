@@ -33,7 +33,6 @@ Response:
 ```
 {
     "text": [
-        "hello there",
         "我",
         "叫",
         "何曼"
