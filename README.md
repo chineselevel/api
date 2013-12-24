@@ -1,8 +1,56 @@
-ChineseLevel
-============
+ChineseLevel API
+================
+
+The ChineseLevel API is a Go server that provides several Chinese related functions in one convenient RESTful JSON API.
+
+Quickstart
+------------
+
+```shell
+$ go run main.go --port 7000
+Server running on port 7000!
+```
+
+Endpoints
+------------
+
+#### /split [GET/POST]
+
+Takes a Chinese string and returns a tokenized array built out of the words in the string.
+
+##### Parameters: 
+
+ - text [string]
+
+##### Example:
+
+Request: 
+```
+/split?text=我叫何曼
+```
+
+Response:
+```
+{
+    "text": [
+        "hello there",
+        "我",
+        "叫",
+        "何曼"
+    ]
+}
+```
+
+#### /rank [GET/POST]
+
+Parameters: 
+
+Example: 
 
 Installation
 ------------
+
+(Work in progress)
 
 Install Docker ([instructions](http://docs.docker.io/en/latest/installation/ubuntulinux/)):
 
