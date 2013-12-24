@@ -1,19 +1,13 @@
-package main
+package api
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/hermanschaaf/mafan"
-	"github.com/jessevdk/go-flags"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 )
-
-var opts struct {
-	Port int `short:"p" long:"port" description:"Port number" default:"7000"`
-}
 
 type Response map[string]interface{}
 
@@ -52,18 +46,4 @@ func SplitHandler(rw http.ResponseWriter, r *http.Request) {
 		s[i] = s[i][1 : len(s[i])-1]
 	}
 	JSONResponse(rw, &Response{"text": s})
-}
-
-func main() {
-	flags.Parse(&opts)
-
-	// initialize operations
-	o := NewOperations()
-
-	// text URL handlers
-	http.HandleFunc("/rank", RankHandler)
-	http.HandleFunc("/split", SplitHandler)
-
-	fmt.Printf("Server running on port %d!\n", opts.Port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", opts.Port), nil))
 }

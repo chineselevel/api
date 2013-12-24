@@ -1,9 +1,9 @@
-package main
+package api
 
-import "github.com/garyburd/redigo"
+import "github.com/garyburd/redigo/redis"
 
 type Operations struct {
-	redis redigo.Conn
+	Redis redis.Conn
 }
 
 func NewOperations() (o *Operations) {
@@ -13,8 +13,8 @@ func NewOperations() (o *Operations) {
 	}
 	defer c.Close()
 
-	o = Operations{
-		redis: c,
+	o = &Operations{
+		Redis: c,
 	}
 	return o
 }
