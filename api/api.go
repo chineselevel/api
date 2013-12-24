@@ -57,6 +57,9 @@ func SplitHandler(rw http.ResponseWriter, r *http.Request) {
 func main() {
 	flags.Parse(&opts)
 
+	// initialize operations
+	o := NewOperations()
+
 	// text URL handlers
 	http.HandleFunc("/rank", RankHandler)
 	http.HandleFunc("/split", SplitHandler)
