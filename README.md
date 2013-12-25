@@ -1,18 +1,16 @@
-ChineseLevel API
-================
+# ChineseLevel API
 
-The ChineseLevel API is a Go server that provides several Chinese related functions in one convenient RESTful JSON API.
+The ChineseLevel API is a Go server that provides several Chinese-related functions in one convenient RESTful JSON API.
 
-Quickstart
-------------
+
+## Quickstart
+
 
 ```shell
 $ go run main.go --port 7000
-Server running on port 7000!
 ```
 
-Endpoints
-------------
+## Endpoints
 
 #### /split [GET/POST]
 
@@ -46,10 +44,9 @@ Parameters:
 
 Example: 
 
-Installation
-------------
+## Installation
 
-(Work in progress)
+(Work in progress - You don't require Docker to get it running, but I aim to make it as easy as just downloading the Docker box and running the server.)
 
 Install Docker ([instructions](http://docs.docker.io/en/latest/installation/ubuntulinux/)):
 

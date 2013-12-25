@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"container/heap"
 )
 
 type Response map[string]interface{}
@@ -30,10 +31,19 @@ func JSONResponse(rw http.ResponseWriter, response *Response) {
 	fmt.Fprint(rw, response)
 }
 
-// RankHandler returns the rank and other information about a text
+// RankHandler returns the average rank and other information about a text
 func RankHandler(rw http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("text")
-	JSONResponse(rw, &Response{"rank": text})
+	totalRank := 0
+	words := mafan.Split(text)
+	for _, word := range words {
+		totalRank += Ops.GetRank(word)
+	}
+	JSONResponse(rw, &Response{
+		"total": totalRank, 
+		"median": , 
+		"average": totalRank / len(words)
+	})
 }
 
 // SplitHandler returns a tokenized version of the Chinese text

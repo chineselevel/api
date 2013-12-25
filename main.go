@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/hermanschaaf/chineselevel/api"
+	"github.com/chineselevel/api/api"
 	"github.com/jessevdk/go-flags"
 	"log"
 	"net/http"
@@ -13,11 +13,9 @@ var opts struct {
 }
 
 func main() {
-	flags.Parse(&opts)
+	defer api.Ops.Redis.Close()
 
-	// initialize operations
-	o := api.NewOperations()
-	fmt.Println(o.Redis)
+	flags.Parse(&opts)
 
 	// text URL handlers
 	http.HandleFunc("/rank", api.RankHandler)
