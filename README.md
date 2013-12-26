@@ -1,28 +1,29 @@
-# ChineseLevel API
+ChineseLevel API
+================
 
 The ChineseLevel API is a Go server that provides several Chinese-related functions in one convenient RESTful JSON API.
 
 
-## Quickstart
-
+Quickstart
+----------
 
 ```shell
 $ go run main.go --port 7000
 ```
 
-## Endpoints
+Endpoints
+----------
 
-#### /split [GET/POST]
+### /split [GET/POST]
 
 Takes a Chinese string and returns a tokenized array built out of the words in the string.
 
-##### Parameters: 
-
- - text [string]
+ - Parameters:
+   + text [string]
 
 ##### Example:
 
-Request: 
+Request:
 ```
 /split?text=我叫何曼
 ```
@@ -38,13 +39,49 @@ Response:
 }
 ```
 
-#### /rank [GET/POST]
+*******************************************
 
-Parameters: 
+### /rank [GET/POST]
 
-Example: 
+##### Parameters:
 
-## Installation
+ - Parameters:
+   + text [string]
+
+##### Example:
+
+*******************************************
+
+### /analyze [GET/POST]
+
+##### Parameters:
+
+ - Parameters:
+   + text [string]
+
+##### Example:
+
+Request:
+```
+GET /analyze?text=她是一位患有先天小兒麻痺症的媽媽，不論刮風下雨她都每天在碼頭用自己殘疾的手腳來給他的兒子掙取學費
+```
+
+Response:
+```
+{
+    "hsk": 6,
+    "percentile": {
+        "80": 19355,
+        "90": 121684,
+        "95": 138696,
+        "99": 253514
+    },
+    "score": 100
+}
+```
+
+Installation
+----------
 
 (Work in progress - You don't require Docker to get it running, but I aim to make it as easy as just downloading the Docker box and running the server.)
 
