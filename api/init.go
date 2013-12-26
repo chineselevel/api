@@ -6,5 +6,7 @@ var Ops *Operations
 // and connecting to any other outside resources so we are
 // aware of failure early on.
 func init() {
-	Ops = NewOperations()
+	server := "localhost:6379"
+	password := ""
+	Ops = NewOperations(server, password)
 }
