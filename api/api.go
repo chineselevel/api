@@ -101,78 +101,39 @@ func getPercentile(values []int, perc int) int {
 	return values[pos]
 }
 
-func fetchWord(c chan int, ops *Operations, word string) {
-	r := -1
-	if mafan.IsHanzi(word) {
-		fmt.Println("Get rank")
-		r = ops.GetRank(word)
-		fmt.Println("Got rank")
-	}
-	fmt.Println("fetched", word)
-	c <- r
-}
-
 // AnalyzeHandler takes a text and returns statistics on the
 // composition: number of characters, words, rank and more.
 func AnalyzeHandler(rw http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("text")
 	words := mafan.Split(text)
 
-	ranks := []int{}
-	unknown := 0
+	ranks := Ops.GetRanks(words)
 
-	// get the ranks for all the words in the text
-	// uses goroutines to fetch each word separately (mm)
-	c := make(chan int, 100)
-	for _, word := range words {
-		fmt.Println("add 1")
-		go fetchWord(c, Ops, word)
-	}
+	fmt.Println(words, ranks)
 
-	// wait for goroutines to finish
-	fmt.Println("waiting")
-	for i := 0; i < len(words); i++ {
-		fmt.Println("got one", i)
-		r := <-c
-		if r >= 0 {
-			ranks = append(ranks, r)
-		} else {
-			unknown += 1
-		}
-	}
-
-	fmt.Println("done")
 	// sort ranks
 	sort.Ints(ranks)
 
-	// add unknown words to end of ranks list
-	// as equal to biggest known word
-	biggest := 0
-	if len(ranks) > 0 {
-		biggest = ranks[len(ranks)-1]
-	}
-	for i := 0; i < unknown; i++ {
-		ranks = append(ranks, biggest)
-	}
+	// get different percentiles
+	p80, p90, p95, p99 := getPercentile(ranks, 80), getPercentile(ranks, 90),
+		getPercentile(ranks, 95), getPercentile(ranks, 99)
 
 	// number of words we expect the average fluent speaker to know
 	maxRank := 30000.0
 
 	// calculate the ChineseLevel score out of 100
-	p90 := getPercentile(ranks, 90)
 	score := math.Min(float64(p90), maxRank) / maxRank * 100.0
 
 	// calculate the estimated HSK score; TODO: improve
-	p99 := getPercentile(ranks, 99)
 	hsk := math.Min(float64(p99), maxRank) / maxRank * 6.0
 
 	JSONResponse(rw, &Response{
 		"score": score,
 		"hsk":   hsk,
 		"percentile": &Response{
-			"80": getPercentile(ranks, 80),
+			"80": p80,
 			"90": p90,
-			"95": getPercentile(ranks, 95),
+			"95": p95,
 			"99": p99,
 		},
 	})
