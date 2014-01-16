@@ -41,6 +41,42 @@ Response:
 
 *******************************************
 
+### /words [GET/POST]
+
+Takes a Chinese string and returns a tokenized array built out of the words in the string (like /split), together with extra information, like each individual word's rank. The returned rank is -1 if the word was not found.
+
+ - Parameters:
+   + text [string]
+
+##### Example:
+
+Request:
+```
+/split?text=我叫何曼
+```
+
+Response:
+```
+{
+    "words": [
+        {
+            "rank": 7,
+            "word": "我"
+        },
+        {
+            "rank": 156,
+            "word": "叫"
+        },
+        {
+            "rank": -1,
+            "word": "何曼"
+        }
+    ]
+}
+```
+
+*******************************************
+
 ### /rank [GET/POST]
 
 ##### Parameters:
