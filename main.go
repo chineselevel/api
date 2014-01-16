@@ -20,6 +20,7 @@ func main() {
 	// text URL handlers
 	http.HandleFunc("/rank", api.RankHandler)
 	http.HandleFunc("/split", api.SplitHandler)
+	http.HandleFunc("/words", api.WordsHandler)
 	http.HandleFunc("/analyze", api.AnalyzeHandler)
 
 	fmt.Printf("Server running on port %d!\n", opts.Port)

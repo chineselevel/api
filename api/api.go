@@ -81,6 +81,29 @@ func SplitHandler(rw http.ResponseWriter, r *http.Request) {
 	JSONResponse(rw, &Response{"text": s})
 }
 
+// WordsHandler returns a tokenized version of the Chinese text
+// supplied to it (like SplitHandler), along with information
+// on these words, like individual rank
+func WordsHandler(rw http.ResponseWriter, r *http.Request) {
+	text := r.FormValue("text")
+	s := mafan.Split(text)
+	wordsInfo := []Response{}
+	for i := range s {
+		// convert characters to proper encoding for json
+		w := strconv.QuoteToASCII(s[i])
+		w = w[1 : len(w)-1]
+
+		// create info object for this word
+		info := Response{
+			"word": w,
+			"rank": Ops.GetRank(s[i]),
+		}
+		wordsInfo = append(wordsInfo, info)
+	}
+
+	JSONResponse(rw, &Response{"words": wordsInfo})
+}
+
 type Word struct {
 	Value string
 	Rank  int
@@ -125,7 +148,7 @@ func AnalyzeHandler(rw http.ResponseWriter, r *http.Request) {
 	score := math.Min(float64(p90), maxRank) / maxRank * 100.0
 
 	// calculate the estimated HSK score; TODO: improve
-	hsk := math.Min(float64(p99), maxRank) / maxRank * 6.0
+	hsk := math.Max(1.0, math.Min(float64(p99), maxRank)/maxRank*6.0)
 
 	JSONResponse(rw, &Response{
 		"score": score,
