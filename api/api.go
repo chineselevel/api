@@ -15,6 +15,23 @@ import (
 
 type Response map[string]interface{}
 
+type rankRespRank struct {
+	Total   int     `json:"total"`
+	Median  float64 `json:"median"`
+	Average int     `json:"average"`
+}
+
+type rankRespWords struct {
+	Total   int `json:"total"`
+	Unknown int `json:"unknown"`
+	Known   int `json:"known"`
+}
+
+type RankResponse struct {
+	Rank  rankRespRank  `json:"rank"`
+	Words rankRespWords `json:"words"`
+}
+
 func (r Response) String() (s string) {
 	b, err := json.Marshal(r)
 	if err != nil {
@@ -55,18 +72,18 @@ func RankHandler(rw http.ResponseWriter, r *http.Request) {
 	if numWords > 0 {
 		avg = totalRank / numWords
 	}
-	JSONResponse(rw, &Response{
-		"rank": &Response{
-			"total":   totalRank,
-			"median":  sm.Median,
-			"average": avg,
-		},
-		"words": &Response{
-			"total":   len(words),
-			"unknown": len(words) - numWords,
-			"known":   numWords,
-		},
-	})
+	rr := RankResponse{}
+	rrRank := rankRespRank{totalRank, sm.Median, avg}
+	rrWords := rankRespWords{len(words), len(words) - numWords, numWords}
+	rr.Rank = rrRank
+	rr.Words = rrWords
+	rw.Header().Set("Content-Type", "application/json")
+	j, err := json.Marshal(rr)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	rw.Write(j)
 }
 
 // SplitHandler returns a tokenized version of the Chinese text
