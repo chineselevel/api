@@ -153,5 +153,5 @@ Great! Hopefully it's all working. Now it's time to install ChineseLevel specifi
 
 ```
 sudo docker pull dockerfile/redis
-docker run -d -name redis -p 6379:6379 dockerfile/redis
+sudo docker run -d -name redis -p 6379:6379 dockerfile/redis
 ```
