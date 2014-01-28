@@ -117,24 +117,41 @@ Response:
 ```
 
 Installation
-----------
+------------
 
-(Work in progress - You don't require Docker to get it running, but I aim to make it as easy as just downloading the Docker box and running the server.)
+The easiest way to get ChineseLevel running is using Docker. But first we need a working installation of Ubuntu 12.04. Start by installing Virtualbox and Vagrant (if you have Ubuntu 12.04 running already, you don't need to install VirtualBox and Vagrant, but you might still want to). Follow these instructions for your OS:
 
-Install Docker ([instructions](http://docs.docker.io/en/latest/installation/ubuntulinux/)):
+ 1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+ 2. Install [Vagrant](http://www.vagrantup.com/downloads)
 
-```bash
+With these installed, we can create a new Ubuntu box and install Docker in it:
+
+```
+# create a new box in the current directory, and ssh into it:
+vagrant box add base http://files.vagrantup.com/precise64.box
+vagrant init
+vagrant up
+vagrant ssh
+
+# install the Docker linux dependencies:
 sudo apt-get update
-sudo apt-get install linux-image-extra-`uname -r`
-sudo sh -c "wget -qO- https://get.docker.io/gpg | apt-key add -"
+sudo apt-get install linux-image-generic-lts-raring linux-headers-generic-lts-raring
+sudo reboot
+
+# ssh back in and install docker:
+vagrant ssh
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
 sudo sh -c "echo deb http://get.docker.io/ubuntu docker main\
 > /etc/apt/sources.list.d/docker.list"
-sudo apt-get update
 sudo apt-get install lxc-docker
+
+# check that it worked by pulling down the ubuntu image and launching a container:
+sudo docker run -i -t ubuntu /bin/bash
 ```
 
-And run it to confirm it worked (type `exit` to exit):
+Great! Hopefully it's all working. Now it's time to install ChineseLevel specific packages. First, pull down the Redis Docker image:
 
-```bash
-sudo docker run -i -t ubuntu /bin/bash
+```
+sudo docker pull dockerfile/redis
+docker run -d -name redis -p 6379:6379 dockerfile/redis
 ```
