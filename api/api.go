@@ -60,10 +60,8 @@ func RankHandler(rw http.ResponseWriter, r *http.Request) {
 		avg = totalRank / numWords
 	}
 	rr := RankResponse{}
-	rrRank := rank{totalRank, sm.Median, avg}
-	rrWords := words{len(w), len(w) - numWords, numWords}
-	rr.Rank = rrRank
-	rr.Words = rrWords
+	rr.Rank = rank{totalRank, sm.Median, avg}
+	rr.Words = words{len(w), len(w) - numWords, numWords}
 	b, err := json.Marshal(rr)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
