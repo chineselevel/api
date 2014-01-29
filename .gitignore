@@ -2,3 +2,4 @@ data
 api/data
 src
 pkg
+*.swp

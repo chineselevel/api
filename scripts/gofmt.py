@@ -1,13 +1,8 @@
 #!/usr/bin/env python
-# from https://github.com/dotcloud/docker/blob/master/hack/travis/gofmt.py
+# borrowed from https://github.com/dotcloud/docker/blob/master/hack/travis/gofmt.py
 import subprocess
 
-from env import commit_range
-
-files = subprocess.check_output([
-    'git', 'diff', '--diff-filter=ACMR',
-    '--name-only', '...'.join(commit_range), '--',
-])
+files = subprocess.check_output(['git', 'diff', '--diff-filter=ACMR', '--name-only'])
 
 exit_status = 0
 
