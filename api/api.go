@@ -11,21 +11,21 @@ import (
 	"strconv"
 )
 
-type rankRespRank struct {
+type rank struct {
 	Total   int     `json:"total"`
 	Median  float64 `json:"median"`
 	Average int     `json:"average"`
 }
 
-type rankRespWords struct {
+type words struct {
 	Total   int `json:"total"`
 	Unknown int `json:"unknown"`
 	Known   int `json:"known"`
 }
 
 type RankResponse struct {
-	Rank  rankRespRank  `json:"rank"`
-	Words rankRespWords `json:"words"`
+	Rank  rank  `json:"rank"`
+	Words words `json:"words"`
 }
 
 // JSONResponse sets the Content-Type header to application/json
@@ -39,12 +39,12 @@ func JSONResponse(rw http.ResponseWriter, json []byte) {
 func RankHandler(rw http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("text")
 	totalRank := 0
-	words := mafan.Split(text)
+	w := mafan.Split(text)
 	sm := median.StreamingMedian{}
 	numWords := 0
 
 	// todo: should do this in goroutines
-	for _, word := range words {
+	for _, word := range w {
 		r := Ops.GetRank(word)
 		totalRank += r
 		if r > 0 {
@@ -57,8 +57,8 @@ func RankHandler(rw http.ResponseWriter, r *http.Request) {
 		avg = totalRank / numWords
 	}
 	rr := RankResponse{}
-	rrRank := rankRespRank{totalRank, sm.Median, avg}
-	rrWords := rankRespWords{len(words), len(words) - numWords, numWords}
+	rrRank := rank{totalRank, sm.Median, avg}
+	rrWords := words{len(w), len(w) - numWords, numWords}
 	rr.Rank = rrRank
 	rr.Words = rrWords
 	b, err := json.Marshal(rr)
