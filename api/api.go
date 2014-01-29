@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/hermanschaaf/algorithms/median"
 	"github.com/hermanschaaf/go-mafan"
@@ -30,9 +31,11 @@ type RankResponse struct {
 
 // JSONResponse sets the Content-Type header to application/json
 // and returns the response.
-func JSONResponse(rw http.ResponseWriter, json []byte) {
+func JSONResponse(rw http.ResponseWriter, b []byte) {
+	// unescape doubly-escaped unicode characters
+	b = bytes.Replace(b, []byte("\\u"), []byte("u"), -1)
 	rw.Header().Set("Content-Type", "application/json")
-	rw.Write(json)
+	rw.Write(b)
 }
 
 // RankHandler returns the average rank and other information about a text
