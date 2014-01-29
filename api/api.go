@@ -1,8 +1,8 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/hermanschaaf/algorithms/median"
 	"github.com/hermanschaaf/go-mafan"
 	"log"
@@ -10,40 +10,44 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
-	"strings"
 )
 
-type Response map[string]interface{}
-
-func (r Response) String() (s string) {
-	b, err := json.Marshal(r)
-	if err != nil {
-		s = ""
-		return
-	}
-	s = string(b)
-	// unescape doubly-escaped unicode characters
-	s = strings.Replace(s, "\\u", `u`, -1)
-	return
+type rank struct {
+	Total   int     `json:"total"`
+	Median  float64 `json:"median"`
+	Average int     `json:"average"`
 }
 
-// JSONResponse returns a JSON-formatted response of a Response object, with the appropriate
-// content-type header set.
-func JSONResponse(rw http.ResponseWriter, response *Response) {
+type words struct {
+	Total   int `json:"total"`
+	Unknown int `json:"unknown"`
+	Known   int `json:"known"`
+}
+
+type RankResponse struct {
+	Rank  rank  `json:"rank"`
+	Words words `json:"words"`
+}
+
+// JSONResponse sets the Content-Type header to application/json
+// and returns the response.
+func JSONResponse(rw http.ResponseWriter, b []byte) {
+	// unescape doubly-escaped unicode characters
+	b = bytes.Replace(b, []byte("\\u"), []byte("u"), -1)
 	rw.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(rw, response)
+	rw.Write(b)
 }
 
 // RankHandler returns the average rank and other information about a text
 func RankHandler(rw http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("text")
 	totalRank := 0
-	words := mafan.Split(text)
+	w := mafan.Split(text)
 	sm := median.StreamingMedian{}
 	numWords := 0
 
 	// todo: should do this in goroutines
-	for _, word := range words {
+	for _, word := range w {
 		r := Ops.GetRank(word)
 		totalRank += r
 		if r > 0 {
@@ -55,18 +59,19 @@ func RankHandler(rw http.ResponseWriter, r *http.Request) {
 	if numWords > 0 {
 		avg = totalRank / numWords
 	}
-	JSONResponse(rw, &Response{
-		"rank": &Response{
-			"total":   totalRank,
-			"median":  sm.Median,
-			"average": avg,
-		},
-		"words": &Response{
-			"total":   len(words),
-			"unknown": len(words) - numWords,
-			"known":   numWords,
-		},
-	})
+	rr := RankResponse{}
+	rr.Rank = rank{totalRank, sm.Median, avg}
+	rr.Words = words{len(w), len(w) - numWords, numWords}
+	b, err := json.Marshal(rr)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	JSONResponse(rw, b)
+}
+
+type SplitResponse struct {
+	Text []string `json:"text"`
 }
 
 // SplitHandler returns a tokenized version of the Chinese text
@@ -78,7 +83,18 @@ func SplitHandler(rw http.ResponseWriter, r *http.Request) {
 		s[i] = strconv.QuoteToASCII(s[i])
 		s[i] = s[i][1 : len(s[i])-1]
 	}
-	JSONResponse(rw, &Response{"text": s})
+	sr := SplitResponse{Text: s}
+	b, err := json.Marshal(sr)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	JSONResponse(rw, b)
+}
+
+type WordsResponse struct {
+	Word string `json:"word"`
+	Rank int    `json:"rank"`
 }
 
 // WordsHandler returns a tokenized version of the Chinese text
@@ -87,21 +103,25 @@ func SplitHandler(rw http.ResponseWriter, r *http.Request) {
 func WordsHandler(rw http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("text")
 	s := mafan.Split(text)
-	wordsInfo := []Response{}
+	wordsInfo := []WordsResponse{}
 	for i := range s {
 		// convert characters to proper encoding for json
 		w := strconv.QuoteToASCII(s[i])
 		w = w[1 : len(w)-1]
 
 		// create info object for this word
-		info := Response{
-			"word": w,
-			"rank": Ops.GetRank(s[i]),
+		info := WordsResponse{
+			Word: w,
+			Rank: Ops.GetRank(s[i]),
 		}
 		wordsInfo = append(wordsInfo, info)
 	}
-
-	JSONResponse(rw, &Response{"words": wordsInfo})
+	b, err := json.Marshal(wordsInfo)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	JSONResponse(rw, b)
 }
 
 type Word struct {
@@ -124,6 +144,19 @@ func getPercentile(values []int, perc int) int {
 	return values[pos]
 }
 
+type percentile struct {
+	Eighty     int `json:"80"`
+	Ninety     int `json:"90"`
+	NinetyFive int `json:"95"`
+	NinetyNine int `json:"99"`
+}
+
+type AnalyzeResponse struct {
+	Score      float64    `json:"score"`
+	HSK        float64    `json:"hsk"`
+	Percentile percentile `json:"percentile"`
+}
+
 // AnalyzeHandler takes a text and returns statistics on the
 // composition: number of characters, words, rank and more.
 func AnalyzeHandler(rw http.ResponseWriter, r *http.Request) {
@@ -131,8 +164,6 @@ func AnalyzeHandler(rw http.ResponseWriter, r *http.Request) {
 	words := mafan.Split(text)
 
 	ranks := Ops.GetRanks(words)
-
-	fmt.Println(words, ranks)
 
 	// sort ranks
 	sort.Ints(ranks)
@@ -150,14 +181,12 @@ func AnalyzeHandler(rw http.ResponseWriter, r *http.Request) {
 	// calculate the estimated HSK score; TODO: improve
 	hsk := math.Max(1.0, math.Min(float64(p99), maxRank)/maxRank*6.0)
 
-	JSONResponse(rw, &Response{
-		"score": score,
-		"hsk":   hsk,
-		"percentile": &Response{
-			"80": p80,
-			"90": p90,
-			"95": p95,
-			"99": p99,
-		},
-	})
+	p := percentile{p80, p90, p95, p99}
+	resp := AnalyzeResponse{score, hsk, p}
+	b, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	JSONResponse(rw, b)
 }
