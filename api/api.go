@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/hermanschaaf/algorithms/median"
 	"github.com/hermanschaaf/go-mafan"
-	"log"
 	"math"
 	"net/http"
 	"sort"
@@ -140,7 +139,6 @@ func getPercentile(values []int, perc int) int {
 		return 0
 	}
 	pos := (l * perc) / 100
-	log.Println(l, pos, values)
 	return values[pos]
 }
 
