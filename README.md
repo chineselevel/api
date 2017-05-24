@@ -1,7 +1,7 @@
 ChineseLevel API
 ================
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/chineselevel/api)](https://goreportcard.com/report/github.com/chineselevel/api)
+[![Go Report Card](https://goreportcard.com/badge/github.com/chineselevel/api)](https://goreportcard.com/report/github.com/chineselevel/api) [![Build Status](https://travis-ci.org/chineselevel/api.svg?branch=master)](https://travis-ci.org/chineselevel/api)
 
 The ChineseLevel API is a Go server that provides several Chinese-related functions in one convenient RESTful JSON API.
 
