@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/chineselevel/api/api"
-	"github.com/jessevdk/go-flags"
 	"log"
 	"net/http"
+
+	"github.com/chineselevel/api/api"
+	"github.com/jessevdk/go-flags"
 )
 
 var opts struct {
