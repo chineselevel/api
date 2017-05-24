@@ -1,6 +1,8 @@
 ChineseLevel API
 ================
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/chineselevel/api)](https://goreportcard.com/report/github.com/chineselevel/api)
+
 The ChineseLevel API is a Go server that provides several Chinese-related functions in one convenient RESTful JSON API.
 
 
