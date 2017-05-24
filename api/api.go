@@ -3,13 +3,14 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/hermanschaaf/algorithms/median"
-	"github.com/hermanschaaf/go-mafan"
 	"log"
 	"math"
 	"net/http"
 	"sort"
 	"strconv"
+
+	"github.com/hermanschaaf/algorithms/median"
+	"github.com/hermanschaaf/go-mafan"
 )
 
 type rank struct {

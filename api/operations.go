@@ -1,10 +1,11 @@
 package api
 
 import (
-	"github.com/garyburd/redigo/redis"
-	"github.com/hermanschaaf/go-mafan"
 	"log"
 	"time"
+
+	"github.com/garyburd/redigo/redis"
+	"github.com/hermanschaaf/go-mafan"
 )
 
 type Operations struct {
